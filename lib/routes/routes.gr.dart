@@ -1,0 +1,121 @@
+// dart format width=80
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+// **************************************************************************
+// AutoRouterGenerator
+// **************************************************************************
+
+// ignore_for_file: type=lint
+// coverage:ignore-file
+
+part of 'routes.dart';
+
+/// generated route for
+/// [BynScreen]
+class BynRoute extends PageRouteInfo<BynRouteArgs> {
+  BynRoute({
+    Key? key,
+    required TravelWallet travelWallet,
+    List<PageRouteInfo>? children,
+  }) : super(
+         BynRoute.name,
+         args: BynRouteArgs(key: key, travelWallet: travelWallet),
+         initialChildren: children,
+       );
+
+  static const String name = 'BynRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<BynRouteArgs>();
+      return BynScreen(key: args.key, travelWallet: args.travelWallet);
+    },
+  );
+}
+
+class BynRouteArgs {
+  const BynRouteArgs({this.key, required this.travelWallet});
+
+  final Key? key;
+
+  final TravelWallet travelWallet;
+
+  @override
+  String toString() {
+    return 'BynRouteArgs{key: $key, travelWallet: $travelWallet}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! BynRouteArgs) return false;
+    return key == other.key && travelWallet == other.travelWallet;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ travelWallet.hashCode;
+}
+
+/// generated route for
+/// [TalkerScreenPage]
+class TalkerRouteRoute extends PageRouteInfo<void> {
+  const TalkerRouteRoute({List<PageRouteInfo>? children})
+    : super(TalkerRouteRoute.name, initialChildren: children);
+
+  static const String name = 'TalkerRouteRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const TalkerScreenPage();
+    },
+  );
+}
+
+/// generated route for
+/// [TravelWalletScreen]
+class TravelWalletRoute extends PageRouteInfo<TravelWalletRouteArgs> {
+  TravelWalletRoute({
+    Key? key,
+    required String title,
+    List<PageRouteInfo>? children,
+  }) : super(
+         TravelWalletRoute.name,
+         args: TravelWalletRouteArgs(key: key, title: title),
+         initialChildren: children,
+       );
+
+  static const String name = 'TravelWalletRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<TravelWalletRouteArgs>();
+      return TravelWalletScreen(key: args.key, title: args.title);
+    },
+  );
+}
+
+class TravelWalletRouteArgs {
+  const TravelWalletRouteArgs({this.key, required this.title});
+
+  final Key? key;
+
+  final String title;
+
+  @override
+  String toString() {
+    return 'TravelWalletRouteArgs{key: $key, title: $title}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! TravelWalletRouteArgs) return false;
+    return key == other.key && title == other.title;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ title.hashCode;
+}

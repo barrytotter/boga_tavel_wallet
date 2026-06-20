@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "738507391426",
+    "project_id": "travel-wallet-app-747fe",
+    "storage_bucket": "travel-wallet-app-747fe.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738507391426:android:e19b3724cece8fdcb6965b",
+        "android_client_info": {
+          "package_name": "com.bogdan.travel_wallet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBy1bxGodiHip3RH4BT38AM5OVqw9iaOsA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
