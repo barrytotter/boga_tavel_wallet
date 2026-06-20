@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:get_it/get_it.dart';
 import '../repositories/travel_wallet/models/travel_wallet.dart';
+import '../features/currency_single/view/byn.dart';
+import '../features/currency_list/view/travel_wallet_screen.dart';
 
 part 'routes.gr.dart';
 
