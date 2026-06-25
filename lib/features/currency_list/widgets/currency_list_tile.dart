@@ -33,9 +33,23 @@ class CurrencyListTile extends StatelessWidget {
         ), // Чтобы флаг был крупным и красивым
       ),
       title: Text(currencyInfo.country, style: theme.textTheme.bodyMedium),
-      subtitle: Text(
-        '${currencyInfo.scale} ${travelWallet.abbreviation} = ${travelWallet.officialRate} BYN',
-        style: theme.textTheme.labelSmall,
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '${currencyInfo.scale} ${travelWallet.abbreviation} = ${travelWallet.officialRate} BYN',
+            style: theme.textTheme.labelSmall,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Потрачено: 0 ${travelWallet.abbreviation}',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.hintColor, // текст чуть приглушенным
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
       trailing: Icon(
         Icons.arrow_forward_ios,
