@@ -13,7 +13,7 @@ class TravelWalletApp extends StatefulWidget {
 }
 
 class _TravelWalletAppState extends State<TravelWalletApp> {
-  final _appRouter = AppRouter(); 
+  final _appRouter = AppRouter();
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +21,7 @@ class _TravelWalletAppState extends State<TravelWalletApp> {
       title: 'TravelWalletApp',
       theme: darkTheme,
       routerConfig: _appRouter.config(
-        navigatorObservers: () => [
-        TalkerRouteObserver(GetIt.I<Talker>(),
-        ),
-      ],
+        navigatorObservers: () => [TalkerRouteObserver(GetIt.I<Talker>())],
       ),
     );
   }

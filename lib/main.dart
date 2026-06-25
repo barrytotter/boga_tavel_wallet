@@ -31,28 +31,27 @@ void main() async {
   talker.info(firebaseApp.options.projectId, 'Firebase initialized');
 
   final dio = Dio();
-  dio.interceptors.add(TalkerDioLogger(talker: talker,
-  settings: const TalkerDioLoggerSettings(
-    printResponseData: false,
-  ),
-  ),
+  dio.interceptors.add(
+    TalkerDioLogger(
+      talker: talker,
+      settings: const TalkerDioLoggerSettings(printResponseData: false),
+    ),
   );
 
-  Bloc.observer = TalkerBlocObserver(talker: talker,
-  settings: const TalkerBlocLoggerSettings(
-    printStateFullData: false,
-    printEventFullData: false,
-  ),
+  Bloc.observer = TalkerBlocObserver(
+    talker: talker,
+    settings: const TalkerBlocLoggerSettings(
+      printStateFullData: false,
+      printEventFullData: false,
+    ),
   );
 
   GetIt.I.registerLazySingleton<AbstractCurrencyRepository>(
-    () => TravelWalletRepository(dio: dio, travelWalletBox: travelWalletBox)
-    );
+    () => TravelWalletRepository(dio: dio, travelWalletBox: travelWalletBox),
+  );
 
   FlutterError.onError = (FlutterErrorDetails details) {
     GetIt.I<Talker>().handle(details.exception, details.stack);
   };
-
   runApp(const TravelWalletApp());
 }
-

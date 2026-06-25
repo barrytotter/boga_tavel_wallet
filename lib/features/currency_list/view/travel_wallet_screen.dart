@@ -12,7 +12,7 @@ import '../bloc/currency_list_bloc.dart';
 
 @RoutePage()
 class TravelWalletScreen extends StatefulWidget {
-  const TravelWalletScreen({super.key, required this.title});
+  const TravelWalletScreen({super.key, this.title = 'Travel Wallet'});
 
   final String title;
 
@@ -26,7 +26,9 @@ class _TravelWalletScreenState extends State<TravelWalletScreen> {
   @override
   void initState() {
     super.initState();
-    _currencyListBlock = CurrencyListBloc(GetIt.I<AbstractCurrencyRepository>());
+    _currencyListBlock = CurrencyListBloc(
+      GetIt.I<AbstractCurrencyRepository>(),
+    );
     _currencyListBlock.add(LoadCurrencyList());
   }
 
@@ -76,11 +78,17 @@ class _TravelWalletScreenState extends State<TravelWalletScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                    const Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: Colors.red,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Failed to load currency rates',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.red),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.labelSmall?.copyWith(color: Colors.red),
                     ),
                     const SizedBox(height: 8),
                     TextButton(

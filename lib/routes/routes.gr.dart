@@ -78,7 +78,7 @@ class TalkerRouteRoute extends PageRouteInfo<void> {
 class TravelWalletRoute extends PageRouteInfo<TravelWalletRouteArgs> {
   TravelWalletRoute({
     Key? key,
-    required String title,
+    String title = 'Travel Wallet',
     List<PageRouteInfo>? children,
   }) : super(
          TravelWalletRoute.name,
@@ -91,14 +91,16 @@ class TravelWalletRoute extends PageRouteInfo<TravelWalletRouteArgs> {
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      final args = data.argsAs<TravelWalletRouteArgs>();
+      final args = data.argsAs<TravelWalletRouteArgs>(
+        orElse: () => const TravelWalletRouteArgs(),
+      );
       return TravelWalletScreen(key: args.key, title: args.title);
     },
   );
 }
 
 class TravelWalletRouteArgs {
-  const TravelWalletRouteArgs({this.key, required this.title});
+  const TravelWalletRouteArgs({this.key, this.title = 'Travel Wallet'});
 
   final Key? key;
 
