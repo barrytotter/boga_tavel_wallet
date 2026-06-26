@@ -11,31 +11,31 @@
 part of 'routes.dart';
 
 /// generated route for
-/// [BynScreen]
-class BynRoute extends PageRouteInfo<BynRouteArgs> {
-  BynRoute({
+/// [CountryScreen]
+class CountryRoute extends PageRouteInfo<CountryRouteArgs> {
+  CountryRoute({
     Key? key,
     required TravelWallet travelWallet,
     List<PageRouteInfo>? children,
   }) : super(
-         BynRoute.name,
-         args: BynRouteArgs(key: key, travelWallet: travelWallet),
+         CountryRoute.name,
+         args: CountryRouteArgs(key: key, travelWallet: travelWallet),
          initialChildren: children,
        );
 
-  static const String name = 'BynRoute';
+  static const String name = 'CountryRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      final args = data.argsAs<BynRouteArgs>();
-      return BynScreen(key: args.key, travelWallet: args.travelWallet);
+      final args = data.argsAs<CountryRouteArgs>();
+      return CountryScreen(key: args.key, travelWallet: args.travelWallet);
     },
   );
 }
 
-class BynRouteArgs {
-  const BynRouteArgs({this.key, required this.travelWallet});
+class CountryRouteArgs {
+  const CountryRouteArgs({this.key, required this.travelWallet});
 
   final Key? key;
 
@@ -43,13 +43,13 @@ class BynRouteArgs {
 
   @override
   String toString() {
-    return 'BynRouteArgs{key: $key, travelWallet: $travelWallet}';
+    return 'CountryRouteArgs{key: $key, travelWallet: $travelWallet}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    if (other is! BynRouteArgs) return false;
+    if (other is! CountryRouteArgs) return false;
     return key == other.key && travelWallet == other.travelWallet;
   }
 

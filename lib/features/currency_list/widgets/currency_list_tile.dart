@@ -1,7 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:travel_wallet/routes/routes.dart';
-import '../../../repositories/travel_wallet/models/travel_wallet.dart';
+import 'package:travel_wallet/repositories/travel_wallet/models/travel_wallet.dart';
 
 class CurrencyListTile extends StatelessWidget {
   const CurrencyListTile({super.key, required this.travelWallet});
@@ -42,12 +43,18 @@ class CurrencyListTile extends StatelessWidget {
             style: theme.textTheme.labelSmall,
           ),
           const SizedBox(height: 4),
-          Text(
-            'Потрачено: 0 ${travelWallet.abbreviation}',
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.hintColor, // текст чуть приглушенным
-              fontWeight: FontWeight.bold,
-            ),
+          ValueListenableBuilder<Box<double>>(
+            valueListenable: Hive.box<double>('expenses_box').listenable(),
+            builder: (context, box, child) {
+              final spent = box.get(travelWallet.abbreviation) ?? 0.0;
+              return Text(
+                'Потрачено: ${spent.toStringAsFixed(2)} ${travelWallet.abbreviation}',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.hintColor, // текст чуть приглушенным
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -57,7 +64,7 @@ class CurrencyListTile extends StatelessWidget {
         size: 16,
       ),
       onTap: () {
-        AutoRouter.of(context).push(BynRoute(travelWallet: travelWallet));
+        AutoRouter.of(context).push(CountryRoute(travelWallet: travelWallet));
       },
     );
   }

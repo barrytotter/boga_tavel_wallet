@@ -23,6 +23,8 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(TravelWalletAdapter());
 
+  await Hive.openBox<double>('expenses_box');
+
   final travelWalletBox = await Hive.openBox<TravelWallet>(travelWalletBoxName);
 
   final firebaseApp = await Firebase.initializeApp(

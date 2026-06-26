@@ -4,7 +4,7 @@ import 'package:talker_flutter/talker_flutter.dart';
 import 'package:get_it/get_it.dart';
 import '../repositories/travel_wallet/models/travel_wallet.dart';
 import '../features/currency_list/view/travel_wallet_screen.dart';
-import '../features/currency_single/view/byn.dart';
+import 'package:travel_wallet/features/currency_single/view/country_screen.dart';
 
 part 'routes.gr.dart';
 
@@ -13,7 +13,7 @@ class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
     AutoRoute(page: TravelWalletRoute.page, path: '/'),
-    AutoRoute(page: BynRoute.page, path: '/byn'),
+    AutoRoute(page: CountryRoute.page, path: '/country'),
     AutoRoute(page: TalkerRouteRoute.page, path: '/talker'),
   ];
 }
