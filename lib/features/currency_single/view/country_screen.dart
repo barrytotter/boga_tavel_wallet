@@ -47,7 +47,8 @@ class CountryScreen extends StatelessWidget {
       builder: (context) {
         return AlertDialog(
           title: Text('Добавить трату в ${travelWallet.abbreviation}'),
-          content: const TextField(
+          content: TextField(
+            controller: amountController,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(hintText: 'Введите сумму'),
           ),
@@ -58,12 +59,11 @@ class CountryScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                final enteredAmount =
-                    double.tryParse(amountController.text) ?? 0.0;
+                final cleanText = amountController.text.replaceAll(',', '.');
+                final enteredAmount = double.tryParse(cleanText) ?? 0.0;
 
                 if (enteredAmount > 0) {
                   final expensesBox = Hive.box<double>('expenses_box');
-
                   final currentExpenses =
                       expensesBox.get(travelWallet.abbreviation) ?? 0.0;
 
