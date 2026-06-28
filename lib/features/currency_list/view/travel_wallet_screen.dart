@@ -9,6 +9,7 @@ import 'package:travel_wallet/repositories/travel_wallet/travel_wallet.dart';
 import 'package:travel_wallet/routes/routes.dart';
 
 import '../bloc/currency_list_bloc.dart';
+import '../widgets/total_expenses_card.dart';
 
 @RoutePage()
 class TravelWalletScreen extends StatefulWidget {
@@ -62,6 +63,24 @@ class _TravelWalletScreenState extends State<TravelWalletScreen> {
         child: BlocBuilder<CurrencyListBloc, CurrencyListState>(
           bloc: _currencyListBlock,
           builder: (context, state) {
+            if (state is CurrencyListLoaded) {
+              return Column(
+                children: [
+                  TotalExpensesCard(wallets: state.currencyRates),
+                  Expanded(
+                    child: ListView.separated(
+                      padding: EdgeInsets.zero,
+                      itemCount: state.currencyRates.length,
+                      separatorBuilder: (context, i) => const Divider(),
+                      itemBuilder: (context, i) {
+                        final travelWallet = state.currencyRates[i];
+                        return CurrencyListTile(travelWallet: travelWallet);
+                      },
+                    ),
+                  ),
+                ],
+              );
+            }
             if (state is CurrencyListLoaded) {
               return ListView.separated(
                 itemCount: state.currencyRates.length,
