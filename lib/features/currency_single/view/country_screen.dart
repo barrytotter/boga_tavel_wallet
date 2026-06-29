@@ -1,6 +1,6 @@
 import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_ce/hive_ce.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import '../../../repositories/travel_wallet/models/travel_wallet.dart';
 
 @RoutePage()
@@ -9,28 +9,97 @@ class CountryScreen extends StatelessWidget {
 
   final TravelWallet travelWallet;
 
+  static const Map<String, (String, IconData)> categories = {
+    'food': ('Еда', Icons.restaurant),
+    'transport': ('Транспорт', Icons.directions_car),
+    'housing': ('Жилье', Icons.hotel),
+  };
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final abbr = travelWallet.abbreviation;
+
     return Scaffold(
       appBar: AppBar(title: Text(travelWallet.name)),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              travelWallet.abbreviation,
-              style: theme.textTheme.displayLarge,
-            ),
-            const SizedBox(height: 16),
-            Text('Официальный курс', style: theme.textTheme.bodyMedium),
-            const SizedBox(height: 8),
-            Text(
-              '${travelWallet.officialRate}',
-              style: theme.textTheme.displaySmall,
-            ),
-          ],
-        ),
+      body: ValueListenableBuilder<Box<double>>(
+        valueListenable: Hive.box<double>('expenses_box').listenable(),
+        builder: (context, box, child) {
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Card(
+                elevation: 0,
+                color: theme.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.3,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      Text(
+                        abbr,
+                        style: theme.textTheme.displayMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Официальный курс: ${travelWallet.officialRate} BYN',
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              // разобьём на категории
+              Text(
+                'ТРАТЫ',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: theme.hintColor,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Генерируем список категорий на основе карты маппинга
+              ...categories.entries.map((entry) {
+                final catKey = entry.key;
+                final (catName, catIcon) = entry.value;
+                // значение по стране
+                final spentInCategory = box.get('${abbr}_$catKey') ?? 0.0;
+
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: theme.colorScheme.primaryContainer,
+                      child: Icon(
+                        catIcon,
+                        color: theme.colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                    title: Text(catName, style: theme.textTheme.titleMedium),
+                    trailing: Text(
+                      '${spentInCategory.toStringAsFixed(2)} $abbr',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddExpenseDialog(context),
@@ -42,41 +111,98 @@ class CountryScreen extends StatelessWidget {
   void _showAddExpenseDialog(BuildContext context) {
     final amountController = TextEditingController();
 
+    String selectedCategory = categories.keys.first;
+
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text('Добавить трату в ${travelWallet.abbreviation}'),
-          content: TextField(
-            controller: amountController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(hintText: 'Введите сумму'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Отмена'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final cleanText = amountController.text.replaceAll(',', '.');
-                final enteredAmount = double.tryParse(cleanText) ?? 0.0;
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text('Добавить трату в ${travelWallet.abbreviation}'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Поле ввода суммы
+                  TextField(
+                    controller: amountController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: const InputDecoration(
+                      labelText: 'Сумма',
+                      hintText: 'Введите сумму',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
 
-                if (enteredAmount > 0) {
-                  final expensesBox = Hive.box<double>('expenses_box');
-                  final currentExpenses =
-                      expensesBox.get(travelWallet.abbreviation) ?? 0.0;
+                  // Выпадающий список категорий
+                  DropdownButtonFormField<String>(
+                    initialValue: selectedCategory,
+                    decoration: const InputDecoration(
+                      labelText: 'Категория',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: categories.entries.map((entry) {
+                      return DropdownMenuItem<String>(
+                        value: entry.key,
+                        child: Row(
+                          children: [
+                            Icon(entry.value.$2, size: 20),
+                            const SizedBox(width: 10),
+                            Text(entry.value.$1),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() => selectedCategory = value);
+                      }
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Отмена'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final cleanText = amountController.text.replaceAll(
+                      ',',
+                      '.',
+                    );
+                    final enteredAmount = double.tryParse(cleanText) ?? 0.0;
 
-                  expensesBox.put(
-                    travelWallet.abbreviation,
-                    currentExpenses + enteredAmount,
-                  );
-                }
-                Navigator.pop(context);
-              },
-              child: const Text('Добавить'),
-            ),
-          ],
+                    if (enteredAmount > 0) {
+                      final expensesBox = Hive.box<double>('expenses_box');
+                      final abbr = travelWallet.abbreviation;
+
+                      // 1. Запись категории (например: 'CNY_food')
+                      final catKey = '${abbr}_$selectedCategory';
+                      final currentCatExpenses = expensesBox.get(catKey) ?? 0.0;
+                      expensesBox.put(
+                        catKey,
+                        currentCatExpenses + enteredAmount,
+                      );
+
+                      // 2. Запись общего тотала
+                      final currentTotalExpenses = expensesBox.get(abbr) ?? 0.0;
+                      expensesBox.put(
+                        abbr,
+                        currentTotalExpenses + enteredAmount,
+                      );
+                    }
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Добавить'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
