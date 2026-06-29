@@ -25,6 +25,9 @@ class CountryScreen extends StatelessWidget {
       body: ValueListenableBuilder<Box<double>>(
         valueListenable: Hive.box<double>('expenses_box').listenable(),
         builder: (context, box, child) {
+          //достаём тотал по стране
+          final totalSpentInCountry = box.get(abbr) ?? 0.0;
+
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -56,6 +59,39 @@ class CountryScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
+
+              Card(
+                elevation: 0,
+                // Выделяем цветом контейнера, чтобы бросалось в глаза
+                color: theme.colorScheme.primaryContainer.withValues(
+                  alpha: 0.6,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  leading: Icon(
+                    Icons.wallet_outlined,
+                    color: theme.colorScheme.onPrimaryContainer,
+                  ),
+                  title: Text(
+                    'Итого потрачено:',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                  trailing: Text(
+                    '${totalSpentInCountry.toStringAsFixed(2)} $abbr',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // разобьём на категории
               Text(
                 'ТРАТЫ',
