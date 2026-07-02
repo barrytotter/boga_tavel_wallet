@@ -187,16 +187,52 @@ class CountryScreen extends StatelessWidget {
 
     String selectedCategory = categories.keys.first;
 
+    bool isAddition = true;
+
     showDialog(
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: Text('Добавить трату в ${travelWallet.abbreviation}'),
+              title: Text(
+                isAddition
+                    ? 'Добавить трату в ${travelWallet.abbreviation}'
+                    : 'Вычесть из ${travelWallet.abbreviation}',
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ChoiceChip(
+                        label: const Text('Расход (+)'),
+                        selected: isAddition,
+                        selectedColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        onSelected: (selected) {
+                          if (selected) setDialogState(() => isAddition = true);
+                        },
+                      ),
+                      const SizedBox(width: 12),
+                      ChoiceChip(
+                        label: const Text('Вычесть (-)'),
+                        selected: !isAddition,
+                        selectedColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        onSelected: (selected) {
+                          if (selected) {
+                            setDialogState(() => isAddition = false);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                   // Поле ввода суммы
                   TextField(
                     controller: amountController,
@@ -272,7 +308,7 @@ class CountryScreen extends StatelessWidget {
                     }
                     Navigator.pop(context);
                   },
-                  child: const Text('Добавить'),
+                  child: const Text('Применить'),
                 ),
               ],
             );
