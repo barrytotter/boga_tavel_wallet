@@ -1,4 +1,5 @@
 import 'package:auto_route/annotations.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import '../../../repositories/travel_wallet/models/travel_wallet.dart';
@@ -9,10 +10,10 @@ class CountryScreen extends StatelessWidget {
 
   final TravelWallet travelWallet;
 
-  static const Map<String, (String, IconData)> categories = {
-    'food': ('Еда', Icons.restaurant),
-    'transport': ('Транспорт', Icons.directions_car),
-    'housing': ('Жилье', Icons.hotel),
+  static const Map<String, (String, IconData, Color)> categories = {
+    'food': ('Еда', Icons.restaurant, Colors.orange),
+    'transport': ('Транспорт', Icons.directions_car, Colors.blue),
+    'housing': ('Жилье', Icons.hotel, Colors.green),
   };
 
   @override
@@ -92,6 +93,43 @@ class CountryScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
+              if (totalSpentInCountry > 0) ...[
+                SizedBox(
+                  height: 180,
+                  child: PieChart(
+                    PieChartData(
+                      sectionsSpace: 4,
+                      centerSpaceRadius: 40,
+                      sections: categories.entries.map((entry) {
+                        final catKey = entry.key;
+                        final color = entry.value.$3;
+                        final spentInCategory =
+                            box.get('${abbr}_$catKey') ?? 0.0;
+
+                        final percentage =
+                            (spentInCategory / totalSpentInCountry) * 100;
+
+                        return PieChartSectionData(
+                          value: spentInCategory,
+                          color: color,
+                          radius: 25,
+                          // Показываем только если больше 5%
+                          title: percentage > 5
+                              ? '${percentage.toStringAsFixed(0)}%'
+                              : '',
+                          titleStyle: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+
               // разобьём на категории
               Text(
                 'ТРАТЫ',
@@ -106,7 +144,7 @@ class CountryScreen extends StatelessWidget {
               // Генерируем список категорий на основе карты маппинга
               ...categories.entries.map((entry) {
                 final catKey = entry.key;
-                final (catName, catIcon) = entry.value;
+                final (catName, catIcon, catColor) = entry.value;
                 // значение по стране
                 final spentInCategory = box.get('${abbr}_$catKey') ?? 0.0;
 
