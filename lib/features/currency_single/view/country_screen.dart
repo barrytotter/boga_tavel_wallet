@@ -307,14 +307,16 @@ class CountryScreen extends StatelessWidget {
                       final currentCatExpenses = expensesBox.get(catKey) ?? 0.0;
                       expensesBox.put(
                         catKey,
-                        currentCatExpenses + enteredAmount,
+                        currentCatExpenses +
+                            (isAddition ? enteredAmount : -enteredAmount),
                       );
 
                       // 2. Запись общего тотала
                       final currentTotalExpenses = expensesBox.get(abbr) ?? 0.0;
                       expensesBox.put(
                         abbr,
-                        currentTotalExpenses + enteredAmount,
+                        currentTotalExpenses +
+                            (isAddition ? enteredAmount : -enteredAmount),
                       );
                     }
                     Navigator.pop(context);
