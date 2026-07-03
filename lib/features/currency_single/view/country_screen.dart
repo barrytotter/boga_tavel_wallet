@@ -2,6 +2,7 @@ import 'package:auto_route/annotations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:travel_wallet/generated/l10n.dart';
 import '../../../repositories/travel_wallet/models/travel_wallet.dart';
 
 @RoutePage()
@@ -10,11 +11,17 @@ class CountryScreen extends StatelessWidget {
 
   final TravelWallet travelWallet;
 
-  static const Map<String, (String, IconData, Color)> categories = {
-    'food': ('Еда', Icons.restaurant, Colors.orange),
-    'transport': ('Транспорт', Icons.directions_car, Colors.blue),
-    'housing': ('Жилье', Icons.hotel, Colors.green),
-  };
+  static Map<String, (String, IconData, Color)> categories(
+    BuildContext context,
+  ) {
+    final s = S.of(context);
+
+    return {
+      'food': (s.food, Icons.restaurant, Colors.orange),
+      'transport': (s.transport, Icons.directions_car, Colors.blue),
+      'housing': (s.housing, Icons.hotel, Colors.green),
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +29,7 @@ class CountryScreen extends StatelessWidget {
     final abbr = travelWallet.abbreviation;
 
     return Scaffold(
-      appBar: AppBar(title: Text(travelWallet.name)),
+      appBar: AppBar(),
       body: ValueListenableBuilder<Box<double>>(
         valueListenable: Hive.box<double>('expenses_box').listenable(),
         builder: (context, box, child) {
@@ -52,7 +59,9 @@ class CountryScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Официальный курс: ${travelWallet.officialRate} BYN',
+                        S
+                            .of(context)
+                            .officialRateXXXByn(travelWallet.officialRate),
                         style: theme.textTheme.bodyLarge,
                       ),
                     ],
@@ -76,7 +85,7 @@ class CountryScreen extends StatelessWidget {
                     color: theme.colorScheme.onPrimaryContainer,
                   ),
                   title: Text(
-                    'Итого потрачено:',
+                    S.of(context).totalSpent,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.onPrimaryContainer,
@@ -100,7 +109,7 @@ class CountryScreen extends StatelessWidget {
                     PieChartData(
                       sectionsSpace: 4,
                       centerSpaceRadius: 40,
-                      sections: categories.entries.map((entry) {
+                      sections: categories(context).entries.map((entry) {
                         final catKey = entry.key;
                         final color = entry.value.$3;
                         final spentInCategory =
@@ -132,7 +141,7 @@ class CountryScreen extends StatelessWidget {
 
               // разобьём на категории
               Text(
-                'ТРАТЫ',
+                S.of(context).expenses,
                 style: theme.textTheme.labelMedium?.copyWith(
                   color: theme.hintColor,
                   fontWeight: FontWeight.bold,
@@ -142,7 +151,7 @@ class CountryScreen extends StatelessWidget {
               const SizedBox(height: 8),
 
               // Генерируем список категорий на основе карты маппинга
-              ...categories.entries.map((entry) {
+              ...categories(context).entries.map((entry) {
                 final catKey = entry.key;
                 final (catName, catIcon, catColor) = entry.value;
                 // значение по стране
@@ -185,7 +194,7 @@ class CountryScreen extends StatelessWidget {
   void _showAddExpenseDialog(BuildContext context) {
     final amountController = TextEditingController();
 
-    String selectedCategory = categories.keys.first;
+    String selectedCategory = categories(context).keys.first;
 
     bool isAddition = true;
 
@@ -197,8 +206,10 @@ class CountryScreen extends StatelessWidget {
             return AlertDialog(
               title: Text(
                 isAddition
-                    ? 'Добавить трату в ${travelWallet.abbreviation}'
-                    : 'Вычесть из ${travelWallet.abbreviation}',
+                    ? S.of(context).abbreviation(travelWallet.abbreviation)
+                    : S.of(context).abbreviation(travelWallet.abbreviation),
+                // ? 'Добавить трату в ${travelWallet.abbreviation}'
+                // : 'Вычесть из ${travelWallet.abbreviation}',
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -208,7 +219,7 @@ class CountryScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ChoiceChip(
-                        label: const Text('Расход (+)'),
+                        label: Text(S.of(context).expense),
                         selected: isAddition,
                         selectedColor: Theme.of(
                           context,
@@ -219,7 +230,7 @@ class CountryScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                       ChoiceChip(
-                        label: const Text('Вычесть (-)'),
+                        label: Text(S.of(context).subtract),
                         selected: !isAddition,
                         selectedColor: Theme.of(
                           context,
@@ -239,9 +250,9 @@ class CountryScreen extends StatelessWidget {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    decoration: const InputDecoration(
-                      labelText: 'Сумма',
-                      hintText: 'Введите сумму',
+                    decoration: InputDecoration(
+                      labelText: S.of(context).amount,
+                      hintText: S.of(context).enterTheAmount,
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -250,11 +261,11 @@ class CountryScreen extends StatelessWidget {
                   // Выпадающий список категорий
                   DropdownButtonFormField<String>(
                     initialValue: selectedCategory,
-                    decoration: const InputDecoration(
-                      labelText: 'Категория',
+                    decoration: InputDecoration(
+                      labelText: S.of(context).category,
                       border: OutlineInputBorder(),
                     ),
-                    items: categories.entries.map((entry) {
+                    items: categories(context).entries.map((entry) {
                       return DropdownMenuItem<String>(
                         value: entry.key,
                         child: Row(
@@ -277,7 +288,7 @@ class CountryScreen extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Отмена'),
+                  child: Text(S.of(context).cancel),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -308,7 +319,7 @@ class CountryScreen extends StatelessWidget {
                     }
                     Navigator.pop(context);
                   },
-                  child: const Text('Применить'),
+                  child: Text(S.of(context).apply),
                 ),
               ],
             );

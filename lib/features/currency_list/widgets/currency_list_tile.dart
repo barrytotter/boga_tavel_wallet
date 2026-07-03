@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:travel_wallet/generated/l10n.dart';
 import 'package:travel_wallet/routes/routes.dart';
 import 'package:travel_wallet/repositories/travel_wallet/models/travel_wallet.dart';
 
@@ -9,22 +10,34 @@ class CurrencyListTile extends StatelessWidget {
 
   final TravelWallet travelWallet;
 
-  static const Map<String, ({String flag, String country, int scale})>
-  _currencyData = {
-    'USD': (flag: '🇺🇸', country: 'США', scale: 1),
-    'EUR': (flag: '🇪🇺', country: 'Еврозона', scale: 1),
-    'VND': (flag: '🇻🇳', country: 'Вьетнам', scale: 10000),
-    'JPY': (flag: '🇯🇵', country: 'Япония', scale: 100),
-    'CNY': (flag: '🇨🇳', country: 'Китай', scale: 10),
-    'KZT': (flag: '🇰🇿', country: 'Казахстан', scale: 100),
+  static const Map<String, ({String flag, int scale})> _currencyData = {
+    'USD': (flag: '🇺🇸', scale: 1),
+    'EUR': (flag: '🇪🇺', scale: 1),
+    'VND': (flag: '🇻🇳', scale: 10000),
+    'JPY': (flag: '🇯🇵', scale: 100),
+    'CNY': (flag: '🇨🇳', scale: 10),
+    'KZT': (flag: '🇰🇿', scale: 100),
   };
+
+  static String countryName(BuildContext context, String code) {
+    final s = S.of(context);
+
+    return switch (code) {
+      'USD' => s.USA,
+      'EUR' => s.EU,
+      'VND' => s.vietnam,
+      'JPY' => s.japan,
+      'CNY' => s.china,
+      'KZT' => s.kazakhstan,
+      _ => code,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final currencyInfo =
-        _currencyData[travelWallet.abbreviation] ??
-        (flag: '🏳️', country: travelWallet.name, scale: 1);
+        _currencyData[travelWallet.abbreviation] ?? (flag: '🏳️', scale: 1);
 
     return ListTile(
       leading: Text(
@@ -33,7 +46,10 @@ class CurrencyListTile extends StatelessWidget {
           fontSize: 28,
         ), // Чтобы флаг был крупным и красивым
       ),
-      title: Text(currencyInfo.country, style: theme.textTheme.bodyMedium),
+      title: Text(
+        countryName(context, travelWallet.abbreviation),
+        style: theme.textTheme.bodyMedium,
+      ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -48,7 +64,13 @@ class CurrencyListTile extends StatelessWidget {
             builder: (context, box, child) {
               final spent = box.get(travelWallet.abbreviation) ?? 0.0;
               return Text(
-                'Потрачено: ${spent.toStringAsFixed(2)} ${travelWallet.abbreviation}',
+                S
+                    .of(context)
+                    .spentInXXXCurr(
+                      spent.toStringAsFixed(2),
+                      travelWallet.abbreviation,
+                    ),
+                // 'Потрачено: ${spent.toStringAsFixed(2)} ${travelWallet.abbreviation}',
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: theme.hintColor, // текст чуть приглушенным
                   fontWeight: FontWeight.bold,

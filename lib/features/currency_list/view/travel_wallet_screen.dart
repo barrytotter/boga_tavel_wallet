@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:travel_wallet/features/currency_list/widgets/widgets.dart';
+import 'package:travel_wallet/generated/l10n.dart';
 import 'package:travel_wallet/repositories/travel_wallet/travel_wallet.dart';
 import 'package:travel_wallet/routes/routes.dart';
 
@@ -104,14 +105,14 @@ class _TravelWalletScreenState extends State<TravelWalletScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Failed to load currency rates',
+                      S.of(context).currencyRatesFailed,
                       style: Theme.of(
                         context,
                       ).textTheme.labelSmall?.copyWith(color: Colors.red),
                     ),
                     const SizedBox(height: 8),
                     TextButton(
-                      child: const Text('Retry'),
+                      child: Text(S.of(context).retry),
                       onPressed: () {
                         _currencyListBlock.add(LoadCurrencyList());
                       },

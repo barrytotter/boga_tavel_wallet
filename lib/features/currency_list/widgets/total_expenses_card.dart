@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:travel_wallet/generated/l10n.dart';
 import 'package:travel_wallet/repositories/travel_wallet/models/travel_wallet.dart';
 
 class TotalExpensesCard extends StatelessWidget {
@@ -55,7 +56,7 @@ class TotalExpensesCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'ОБЩИЕ ТРАТЫ ЗА ПОЕЗДКУ',
+                  S.of(context).totalTravelExpenses,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: theme.hintColor,
                     fontWeight: FontWeight.bold,
