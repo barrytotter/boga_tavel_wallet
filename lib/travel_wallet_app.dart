@@ -27,7 +27,6 @@ class _TravelWalletAppState extends State<TravelWalletApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      locale: Locale('en'),
       supportedLocales: S.delegate.supportedLocales,
       theme: darkTheme,
       routerConfig: _appRouter.config(

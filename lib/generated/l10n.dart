@@ -181,7 +181,7 @@ class S {
 
   /// `Kazakhstan`
   String get kazakhstan {
-    return Intl.message('Kazakhstan', name: 'kazakhstan', desc: '', args: []);
+    return Intl.message('Kazakhstan', name: 'kazahstan', desc: '', args: []);
   }
 
   /// `Amount`
