@@ -28,7 +28,7 @@ class CurrencyListTile extends StatelessWidget {
       'VND' => s.vietnam,
       'JPY' => s.japan,
       'CNY' => s.china,
-      'KZT' => s.kazakhstan,
+      'KZT' => s.kazahstan,
       _ => code,
     };
   }

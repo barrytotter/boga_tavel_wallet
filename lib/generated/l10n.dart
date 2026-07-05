@@ -180,7 +180,7 @@ class S {
   }
 
   /// `Kazakhstan`
-  String get kazakhstan {
+  String get kazahstan {
     return Intl.message('Kazakhstan', name: 'kazahstan', desc: '', args: []);
   }
 

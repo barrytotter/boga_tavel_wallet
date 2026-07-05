@@ -1,0 +1,46 @@
+name: Flutter CI
+
+# Указываем триггеры: запускать пайплайн при каждом пуше или пулл-реквесте в главные ветки
+on:
+  push:
+    branches: [main, master, dev]
+  pull_request:
+    branches: [main, master, dev]
+
+jobs:
+  compatibility:
+    name: Flutter Analyze and Test
+    # Запускаем на чистой виртуальной машине с Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      # Шаг 1: Скачиваем актуальный код репозитория на виртуальную машину
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Шаг 2: Устанавливаем Java (необходима для работы инструментов сборки)
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
+      # Шаг 3: Устанавливаем Flutter
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          # Можно указать конкретную версию, например: channel: 'stable' или flutter-version: '3.22.0'
+          channel: "stable"
+          cache: true # Включаем кэширование, чтобы пайплайн работал быстрее при повторных запусках
+
+      # Шаг 4: Загружаем зависимости (pub get)
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Шаг 5: Проверяем код линтером (flutter analyze)
+      - name: Run code analysis
+        run: flutter analyze
+
+      # Шаг 6: Запускаем unit-тесты (flutter test)
+      - name: Run tests
+        run: flutter test
