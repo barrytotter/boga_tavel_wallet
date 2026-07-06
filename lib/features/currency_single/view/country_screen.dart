@@ -26,7 +26,7 @@ class CountryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final abbr = travelWallet.abbreviation;
+    final currencyCode = travelWallet.abbreviation;
 
     return Scaffold(
       appBar: AppBar(),
@@ -34,7 +34,7 @@ class CountryScreen extends StatelessWidget {
         valueListenable: Hive.box<double>('expenses_box').listenable(),
         builder: (context, box, child) {
           //достаём тотал по стране
-          final totalSpentInCountry = box.get(abbr) ?? 0.0;
+          final totalSpentInCountry = box.get(currencyCode) ?? 0.0;
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -52,7 +52,7 @@ class CountryScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       Text(
-                        abbr,
+                        currencyCode,
                         style: theme.textTheme.displayMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -92,7 +92,7 @@ class CountryScreen extends StatelessWidget {
                     ),
                   ),
                   trailing: Text(
-                    '${totalSpentInCountry.toStringAsFixed(2)} $abbr',
+                    '${totalSpentInCountry.toStringAsFixed(2)} $currencyCode',
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.onPrimaryContainer,
@@ -110,10 +110,10 @@ class CountryScreen extends StatelessWidget {
                       sectionsSpace: 4,
                       centerSpaceRadius: 40,
                       sections: categories(context).entries.map((entry) {
-                        final catKey = entry.key;
+                        final categoryKey = entry.key;
                         final color = entry.value.$3;
                         final spentInCategory =
-                            box.get('${abbr}_$catKey') ?? 0.0;
+                            box.get('${currencyCode}_$categoryKey') ?? 0.0;
 
                         final percentage =
                             (spentInCategory / totalSpentInCountry) * 100;
@@ -152,10 +152,11 @@ class CountryScreen extends StatelessWidget {
 
               // Генерируем список категорий на основе карты маппинга
               ...categories(context).entries.map((entry) {
-                final catKey = entry.key;
-                final (catName, catIcon, catColor) = entry.value;
+                final categoryKey = entry.key;
+                final (categoryName, categoryIcon, categoryColor) = entry.value;
                 // значение по стране
-                final spentInCategory = box.get('${abbr}_$catKey') ?? 0.0;
+                final spentInCategory =
+                    box.get('${currencyCode}_$categoryKey') ?? 0.0;
 
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 6),
@@ -166,13 +167,16 @@ class CountryScreen extends StatelessWidget {
                     leading: CircleAvatar(
                       backgroundColor: theme.colorScheme.primaryContainer,
                       child: Icon(
-                        catIcon,
+                        categoryIcon,
                         color: theme.colorScheme.onPrimaryContainer,
                       ),
                     ),
-                    title: Text(catName, style: theme.textTheme.titleMedium),
+                    title: Text(
+                      categoryName,
+                      style: theme.textTheme.titleMedium,
+                    ),
                     trailing: Text(
-                      '${spentInCategory.toStringAsFixed(2)} $abbr',
+                      '${spentInCategory.toStringAsFixed(2)} $currencyCode',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -196,7 +200,7 @@ class CountryScreen extends StatelessWidget {
 
     String selectedCategory = categories(context).keys.first;
 
-    bool isAddition = true;
+    bool isAdding = true;
 
     showDialog(
       context: context,
@@ -205,7 +209,7 @@ class CountryScreen extends StatelessWidget {
           builder: (context, setDialogState) {
             return AlertDialog(
               title: Text(
-                isAddition
+                isAdding
                     ? S.of(context).abbreviation(travelWallet.abbreviation)
                     : S.of(context).abbreviation(travelWallet.abbreviation),
                 // ? 'Добавить трату в ${travelWallet.abbreviation}'
@@ -220,24 +224,24 @@ class CountryScreen extends StatelessWidget {
                     children: [
                       ChoiceChip(
                         label: Text(S.of(context).expense),
-                        selected: isAddition,
+                        selected: isAdding,
                         selectedColor: Theme.of(
                           context,
                         ).colorScheme.primaryContainer,
                         onSelected: (selected) {
-                          if (selected) setDialogState(() => isAddition = true);
+                          if (selected) setDialogState(() => isAdding = true);
                         },
                       ),
                       const SizedBox(width: 12),
                       ChoiceChip(
                         label: Text(S.of(context).subtract),
-                        selected: !isAddition,
+                        selected: !isAdding,
                         selectedColor: Theme.of(
                           context,
                         ).colorScheme.primaryContainer,
                         onSelected: (selected) {
                           if (selected) {
-                            setDialogState(() => isAddition = false);
+                            setDialogState(() => isAdding = false);
                           }
                         },
                       ),
@@ -300,23 +304,25 @@ class CountryScreen extends StatelessWidget {
 
                     if (enteredAmount > 0) {
                       final expensesBox = Hive.box<double>('expenses_box');
-                      final abbr = travelWallet.abbreviation;
+                      final currencyCode = travelWallet.abbreviation;
 
                       // 1. Запись категории (например: 'CNY_food')
-                      final catKey = '${abbr}_$selectedCategory';
-                      final currentCatExpenses = expensesBox.get(catKey) ?? 0.0;
+                      final categoryKey = '${currencyCode}_$selectedCategory';
+                      final currentCatExpenses =
+                          expensesBox.get(categoryKey) ?? 0.0;
                       expensesBox.put(
-                        catKey,
+                        categoryKey,
                         currentCatExpenses +
-                            (isAddition ? enteredAmount : -enteredAmount),
+                            (isAdding ? enteredAmount : -enteredAmount),
                       );
 
                       // 2. Запись общего тотала
-                      final currentTotalExpenses = expensesBox.get(abbr) ?? 0.0;
+                      final currentTotalExpenses =
+                          expensesBox.get(currencyCode) ?? 0.0;
                       expensesBox.put(
-                        abbr,
+                        currencyCode,
                         currentTotalExpenses +
-                            (isAddition ? enteredAmount : -enteredAmount),
+                            (isAdding ? enteredAmount : -enteredAmount),
                       );
                     }
                     Navigator.pop(context);
