@@ -7,6 +7,7 @@ import 'package:talker_bloc_logger/talker_bloc_logger_observer.dart';
 import 'package:talker_bloc_logger/talker_bloc_logger_settings.dart';
 import 'package:talker_dio_logger/talker_dio_logger.dart';
 import 'package:travel_wallet/firebase_options.dart';
+import 'package:travel_wallet/repositories/travel_wallet/models/travel_wallet.dart';
 import 'package:travel_wallet/repositories/travel_wallet/travel_wallet.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'travel_wallet_app.dart';
