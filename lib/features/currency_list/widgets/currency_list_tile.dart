@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:travel_wallet/features/currency_single/widgets/add_expense_dialog.dart';
 import 'package:travel_wallet/generated/l10n.dart';
 import 'package:travel_wallet/routes/routes.dart';
 import 'package:travel_wallet/repositories/travel_wallet/models/travel_wallet.dart';
@@ -60,7 +61,7 @@ class CurrencyListTile extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           ValueListenableBuilder<Box<double>>(
-            valueListenable: Hive.box<double>('expenses_box').listenable(),
+            valueListenable: expenseStorage.listenable,
             builder: (context, box, child) {
               final spent = box.get(travelWallet.abbreviation) ?? 0.0;
               return Text(

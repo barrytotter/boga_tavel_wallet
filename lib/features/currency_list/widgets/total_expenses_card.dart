@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:travel_wallet/features/currency_single/widgets/add_expense_dialog.dart';
 import 'package:travel_wallet/generated/l10n.dart';
 import 'package:travel_wallet/repositories/travel_wallet/models/travel_wallet.dart';
 
@@ -32,7 +33,7 @@ class TotalExpensesCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return ValueListenableBuilder<Box<double>>(
-      valueListenable: Hive.box<double>('expenses_box').listenable(),
+      valueListenable: expenseStorage.listenable,
       builder: (context, box, child) {
         double totalByn = 0.0;
 

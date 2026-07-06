@@ -2,6 +2,7 @@ import 'package:auto_route/annotations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:travel_wallet/features/currency_single/widgets/add_expense_dialog.dart';
 import 'package:travel_wallet/generated/l10n.dart';
 import '../../../repositories/travel_wallet/models/travel_wallet.dart';
 
@@ -31,10 +32,12 @@ class CountryScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(),
       body: ValueListenableBuilder<Box<double>>(
-        valueListenable: Hive.box<double>('expenses_box').listenable(),
+        valueListenable: expenseStorage.listenable,
         builder: (context, box, child) {
           //достаём тотал по стране
-          final totalSpentInCountry = box.get(currencyCode) ?? 0.0;
+          final totalSpentInCountry = expenseStorage.getTotalExpenses(
+            currencyCode,
+          );
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -189,151 +192,11 @@ class CountryScreen extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddExpenseDialog(context),
-        child: const Icon(Icons.add_card),
+        onPressed: () {
+          showAddExpenseDialog(context: context, travelWallet: travelWallet);
+        },
+        child: const Icon(Icons.add),
       ),
-    );
-  }
-
-  void _showAddExpenseDialog(BuildContext context) {
-    final amountController = TextEditingController();
-
-    String selectedCategory = categories(context).keys.first;
-
-    bool isAdding = true;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: Text(
-                isAdding
-                    ? S.of(context).abbreviation(travelWallet.abbreviation)
-                    : S.of(context).abbreviation(travelWallet.abbreviation),
-                // ? 'Добавить трату в ${travelWallet.abbreviation}'
-                // : 'Вычесть из ${travelWallet.abbreviation}',
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ChoiceChip(
-                        label: Text(S.of(context).expense),
-                        selected: isAdding,
-                        selectedColor: Theme.of(
-                          context,
-                        ).colorScheme.primaryContainer,
-                        onSelected: (selected) {
-                          if (selected) setDialogState(() => isAdding = true);
-                        },
-                      ),
-                      const SizedBox(width: 12),
-                      ChoiceChip(
-                        label: Text(S.of(context).subtract),
-                        selected: !isAdding,
-                        selectedColor: Theme.of(
-                          context,
-                        ).colorScheme.primaryContainer,
-                        onSelected: (selected) {
-                          if (selected) {
-                            setDialogState(() => isAdding = false);
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // Поле ввода суммы
-                  TextField(
-                    controller: amountController,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: InputDecoration(
-                      labelText: S.of(context).amount,
-                      hintText: S.of(context).enterTheAmount,
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Выпадающий список категорий
-                  DropdownButtonFormField<String>(
-                    initialValue: selectedCategory,
-                    decoration: InputDecoration(
-                      labelText: S.of(context).category,
-                      border: OutlineInputBorder(),
-                    ),
-                    items: categories(context).entries.map((entry) {
-                      return DropdownMenuItem<String>(
-                        value: entry.key,
-                        child: Row(
-                          children: [
-                            Icon(entry.value.$2, size: 20),
-                            const SizedBox(width: 10),
-                            Text(entry.value.$1),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setDialogState(() => selectedCategory = value);
-                      }
-                    },
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(S.of(context).cancel),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    final cleanText = amountController.text.replaceAll(
-                      ',',
-                      '.',
-                    );
-                    final enteredAmount = double.tryParse(cleanText) ?? 0.0;
-
-                    if (enteredAmount > 0) {
-                      final expensesBox = Hive.box<double>('expenses_box');
-                      final currencyCode = travelWallet.abbreviation;
-
-                      // 1. Запись категории (например: 'CNY_food')
-                      final categoryKey = '${currencyCode}_$selectedCategory';
-                      final currentCatExpenses =
-                          expensesBox.get(categoryKey) ?? 0.0;
-                      expensesBox.put(
-                        categoryKey,
-                        currentCatExpenses +
-                            (isAdding ? enteredAmount : -enteredAmount),
-                      );
-
-                      // 2. Запись общего тотала
-                      final currentTotalExpenses =
-                          expensesBox.get(currencyCode) ?? 0.0;
-                      expensesBox.put(
-                        currencyCode,
-                        currentTotalExpenses +
-                            (isAdding ? enteredAmount : -enteredAmount),
-                      );
-                    }
-                    Navigator.pop(context);
-                  },
-                  child: Text(S.of(context).apply),
-                ),
-              ],
-            );
-          },
-        );
-      },
     );
   }
 }
