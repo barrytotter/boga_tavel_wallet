@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:travel_wallet/features/currency_list/bloc/currency_list_bloc.dart';
+import 'package:travel_wallet/repositories/travel_wallet/models/travel_wallet.dart';
 import 'package:travel_wallet/repositories/travel_wallet/travel_wallet.dart';
 import 'dart:async';
 
