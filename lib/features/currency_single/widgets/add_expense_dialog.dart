@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:travel_wallet/features/currency_single/models/expense_category.dart';
 import 'package:travel_wallet/features/currency_single/view/country_screen.dart';
 import 'package:travel_wallet/generated/l10n.dart';
 import 'package:travel_wallet/repositories/expense_storage/expense_storage_service.dart';
@@ -11,7 +12,8 @@ void showAddExpenseDialog({
   required TravelWallet travelWallet,
 }) {
   final amountController = TextEditingController();
-  String selectedCategory = CountryScreen.categories(context).keys.first;
+  final allCategories = CountryScreen.getExpenseCategories(context);
+  ExpenseCategory selectedCategory = allCategories.first;
   bool isAdding = true;
 
   showDialog(
@@ -68,20 +70,20 @@ void showAddExpenseDialog({
                 const SizedBox(height: 16),
 
                 // Выпадающий список категорий
-                DropdownButtonFormField<String>(
+                DropdownButtonFormField<ExpenseCategory>(
                   initialValue: selectedCategory,
                   decoration: InputDecoration(
                     labelText: S.of(context).category,
                     border: const OutlineInputBorder(),
                   ),
-                  items: CountryScreen.categories(context).entries.map((entry) {
-                    return DropdownMenuItem<String>(
-                      value: entry.key,
+                  items: allCategories.map((category) {
+                    return DropdownMenuItem<ExpenseCategory>(
+                      value: category,
                       child: Row(
                         children: [
-                          Icon(entry.value.$2, size: 20),
+                          Icon(category.icon, size: 20),
                           const SizedBox(width: 10),
-                          Text(entry.value.$1),
+                          Text(category.name),
                         ],
                       ),
                     );
@@ -111,7 +113,7 @@ void showAddExpenseDialog({
                   if (enteredAmount > 0) {
                     expenseStorage.updateExpenses(
                       currencyCode: travelWallet.abbreviation,
-                      categoryKey: selectedCategory,
+                      categoryKey: selectedCategory.key,
                       amount: enteredAmount,
                       isAdding: isAdding,
                     );

@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'package:travel_wallet/repositories/travel_wallet/models/travel_wallet.dart';
 import 'package:travel_wallet/repositories/travel_wallet/travel_wallet.dart';
 
 part 'currency_list_event.dart';
@@ -21,8 +22,7 @@ class CurrencyListBloc extends Bloc<CurrencyListEvent, CurrencyListState> {
       } catch (e, st) {
         emit(CurrencyListError(e));
         GetIt.I<Talker>().handle(e, st);
-      }
-      finally {
+      } finally {
         event.completer?.complete();
       }
     });

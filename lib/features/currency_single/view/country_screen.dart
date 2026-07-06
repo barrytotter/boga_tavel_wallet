@@ -2,6 +2,7 @@ import 'package:auto_route/annotations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:travel_wallet/features/currency_single/models/expense_category.dart';
 import 'package:travel_wallet/features/currency_single/widgets/add_expense_dialog.dart';
 import 'package:travel_wallet/generated/l10n.dart';
 import '../../../repositories/travel_wallet/models/travel_wallet.dart';
@@ -12,16 +13,29 @@ class CountryScreen extends StatelessWidget {
 
   final TravelWallet travelWallet;
 
-  static Map<String, (String, IconData, Color)> categories(
-    BuildContext context,
-  ) {
+  static List<ExpenseCategory> getExpenseCategories(BuildContext context) {
     final s = S.of(context);
 
-    return {
-      'food': (s.food, Icons.restaurant, Colors.orange),
-      'transport': (s.transport, Icons.directions_car, Colors.blue),
-      'housing': (s.housing, Icons.hotel, Colors.green),
-    };
+    return [
+      ExpenseCategory(
+        key: 'food',
+        name: s.food,
+        icon: Icons.restaurant,
+        color: Colors.orange,
+      ),
+      ExpenseCategory(
+        key: 'transport',
+        name: s.transport,
+        icon: Icons.directions_car,
+        color: Colors.blue,
+      ),
+      ExpenseCategory(
+        key: 'housing',
+        name: s.housing,
+        icon: Icons.hotel,
+        color: Colors.green,
+      ),
+    ];
   }
 
   @override
@@ -112,18 +126,16 @@ class CountryScreen extends StatelessWidget {
                     PieChartData(
                       sectionsSpace: 4,
                       centerSpaceRadius: 40,
-                      sections: categories(context).entries.map((entry) {
-                        final categoryKey = entry.key;
-                        final color = entry.value.$3;
+                      sections: getExpenseCategories(context).map((category) {
                         final spentInCategory =
-                            box.get('${currencyCode}_$categoryKey') ?? 0.0;
+                            box.get('${currencyCode}_${category.key}') ?? 0.0;
 
                         final percentage =
                             (spentInCategory / totalSpentInCountry) * 100;
 
                         return PieChartSectionData(
                           value: spentInCategory,
-                          color: color,
+                          color: category.color,
                           radius: 25,
                           // Показываем только если больше 5%
                           title: percentage > 5
@@ -154,12 +166,10 @@ class CountryScreen extends StatelessWidget {
               const SizedBox(height: 8),
 
               // Генерируем список категорий на основе карты маппинга
-              ...categories(context).entries.map((entry) {
-                final categoryKey = entry.key;
-                final (categoryName, categoryIcon, categoryColor) = entry.value;
+              ...getExpenseCategories(context).map((category) {
                 // значение по стране
                 final spentInCategory =
-                    box.get('${currencyCode}_$categoryKey') ?? 0.0;
+                    box.get('${currencyCode}_${category.key}') ?? 0.0;
 
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 6),
@@ -170,12 +180,12 @@ class CountryScreen extends StatelessWidget {
                     leading: CircleAvatar(
                       backgroundColor: theme.colorScheme.primaryContainer,
                       child: Icon(
-                        categoryIcon,
+                        category.icon,
                         color: theme.colorScheme.onPrimaryContainer,
                       ),
                     ),
                     title: Text(
-                      categoryName,
+                      category.name,
                       style: theme.textTheme.titleMedium,
                     ),
                     trailing: Text(
