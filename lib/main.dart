@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:talker_bloc_logger/talker_bloc_logger_observer.dart';
 import 'package:talker_bloc_logger/talker_bloc_logger_settings.dart';
 import 'package:talker_dio_logger/talker_dio_logger.dart';
+import 'package:travel_wallet/features/currency_single/models/expense_transaction.dart';
 import 'package:travel_wallet/firebase_options.dart';
 import 'package:travel_wallet/repositories/travel_wallet/models/travel_wallet.dart';
 import 'package:travel_wallet/repositories/travel_wallet/travel_wallet.dart';
@@ -22,9 +23,11 @@ void main() async {
   const String travelWalletBoxName = 'travel_wallet_box';
 
   await Hive.initFlutter();
+  Hive.registerAdapter(ExpenseTransactionAdapter());
   Hive.registerAdapter(TravelWalletAdapter());
 
   await Hive.openBox<double>('expenses_box');
+  await Hive.openBox<ExpenseTransaction>('transactions_box');
 
   final travelWalletBox = await Hive.openBox<TravelWallet>(travelWalletBoxName);
 

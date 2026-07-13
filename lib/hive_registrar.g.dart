@@ -3,16 +3,19 @@
 // Check in to version control
 
 import 'package:hive_ce/hive_ce.dart';
+import 'package:travel_wallet/features/currency_single/models/expense_transaction.dart';
 import 'package:travel_wallet/repositories/travel_wallet/models/travel_wallet.dart';
 
 extension HiveRegistrar on HiveInterface {
   void registerAdapters() {
+    registerAdapter(ExpenseTransactionAdapter());
     registerAdapter(TravelWalletAdapter());
   }
 }
 
 extension IsolatedHiveRegistrar on IsolatedHiveInterface {
   void registerAdapters() {
+    registerAdapter(ExpenseTransactionAdapter());
     registerAdapter(TravelWalletAdapter());
   }
 }
