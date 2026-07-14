@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:travel_wallet/features/currency_single/models/expense_category.dart';
+import 'package:travel_wallet/features/currency_single/models/expense_transaction.dart';
 import 'package:travel_wallet/features/currency_single/view/country_screen.dart';
 import 'package:travel_wallet/generated/l10n.dart';
 import 'package:travel_wallet/repositories/expense_storage/expense_storage_service.dart';
@@ -10,11 +11,16 @@ final expenseStorage = ExpenseStorageService();
 void showAddExpenseDialog({
   required BuildContext context,
   required TravelWallet travelWallet,
+  ExpenseTransaction? transaction,
 }) {
-  final amountController = TextEditingController();
   final allCategories = CountryScreen.getExpenseCategories(context);
   ExpenseCategory selectedCategory = allCategories.first;
+  final isEditing = transaction != null;
   bool isAdding = true;
+  final currencyCode = travelWallet.abbreviation;
+  final amountController = TextEditingController(
+    text: isEditing ? transaction.amount.toStringAsFixed(2) : '',
+  );
 
   showDialog(
     context: context,
@@ -111,12 +117,24 @@ void showAddExpenseDialog({
                   final enteredAmount = double.tryParse(cleanText) ?? 0.0;
 
                   if (enteredAmount > 0) {
-                    expenseStorage.updateExpenses(
-                      currencyCode: travelWallet.abbreviation,
-                      categoryKey: selectedCategory.key,
-                      amount: enteredAmount,
-                      isAdding: isAdding,
-                    );
+                    if (isEditing) {
+                      // --- РЕЖИМ РЕДАКТИРОВАНИЯ ---
+                      expenseStorage.updateTransaction(
+                        currencyCode: currencyCode,
+                        oldTransaction: transaction,
+                        newAmount: enteredAmount,
+                        newCategoryKey: selectedCategory.key,
+                      );
+                    } else {
+                      // --- РЕЖИМ СОЗДАНИЯ ---
+                      expenseStorage.updateExpenses(
+                        currencyCode: travelWallet.abbreviation,
+                        categoryKey: selectedCategory.key,
+                        amount: enteredAmount,
+                        isAdding:
+                            isAdding, // по умолчанию расход, либо бери из параметров
+                      );
+                    }
                   }
 
                   amountController.dispose(); // Чистим

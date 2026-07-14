@@ -93,6 +93,74 @@ class ExpenseStorageService {
 
     txBox.put(txKey, newTransaction);
   }
+
+  /// Удалить транзакцию
+  void deleteTransaction({
+    required String currencyCode,
+    required ExpenseTransaction transaction,
+  }) {
+    final box = _getBox();
+    final txBox = _getTxBox();
+
+    final refundAmount = transaction.isAdding
+        ? -transaction.amount
+        : -transaction.amount;
+
+    final fullCategoryKey = '${currencyCode}_${transaction.categoryKey}';
+    final currentCatExpenses = box.get(fullCategoryKey) ?? 0.0;
+    box.put(fullCategoryKey, currentCatExpenses + refundAmount);
+
+    final currentTotalExpenses = box.get(currencyCode) ?? 0.0;
+    box.put(currencyCode, currentTotalExpenses + refundAmount);
+
+    // Удаляем транзакцию из Hive
+    txBox.delete(transaction.id);
+  }
+
+  /// Редактировать транзакцию
+  void updateTransaction({
+    required String currencyCode,
+    required ExpenseTransaction oldTransaction,
+    required double newAmount,
+    required String newCategoryKey,
+  }) {
+    final box = _getBox();
+    final txBox = _getTxBox();
+
+    // --- ШАГ 1: Откатываем старые значения балансов назад ---
+    final oldRefundAmount = oldTransaction.isAdding
+        ? -oldTransaction.amount
+        : -oldTransaction.amount;
+
+    final oldCategoryKey = '${currencyCode}_${oldTransaction.categoryKey}';
+    final currentCatExpenses = box.get(oldCategoryKey) ?? 0.0;
+    box.put(oldCategoryKey, currentCatExpenses + oldRefundAmount);
+
+    final currentTotalExpenses = box.get(currencyCode) ?? 0.0;
+    box.put(currencyCode, currentTotalExpenses + oldRefundAmount);
+
+    // --- ШАГ 2: Применяем новые значения балансов ---
+    final newApplyAmount = oldTransaction.isAdding ? newAmount : -newAmount;
+
+    final newCategoryKeyFull = '${currencyCode}_$newCategoryKey';
+    final updatedCatExpenses = box.get(newCategoryKeyFull) ?? 0.0;
+    box.put(newCategoryKeyFull, updatedCatExpenses + newApplyAmount);
+
+    final updatedTotalExpenses = box.get(currencyCode) ?? 0.0;
+    box.put(currencyCode, updatedTotalExpenses + newApplyAmount);
+
+    // --- ШАГ 3: Обновляем сам объект в Hive ---
+    // Поскольку ExpenseTransaction наследуется от HiveObject, мы можем обновить его свойства напрямую
+    final updatedTransaction = ExpenseTransaction(
+      id: oldTransaction.id,
+      amount: newAmount,
+      categoryKey: newCategoryKey,
+      isAdding: oldTransaction.isAdding,
+      dateTime: oldTransaction.dateTime, // оставляем оригинальную дату
+    );
+
+    txBox.put(oldTransaction.id, updatedTransaction);
+  }
 }
 
 /// хелпер

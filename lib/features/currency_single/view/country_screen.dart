@@ -220,7 +220,10 @@ class CountryScreen extends StatelessWidget {
           const SizedBox(height: 8),
 
           // 4. НАША ИСТОРИЯ (у неё свой независимый ValueListenableBuilder внутри)
-          ExpenseHistoryView(currencyCode: currencyCode),
+          ExpenseHistoryView(
+            currencyCode: currencyCode,
+            travelWallet: travelWallet,
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(

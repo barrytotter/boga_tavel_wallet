@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:travel_wallet/features/currency_single/view/country_screen.dart';
+import 'package:travel_wallet/features/currency_single/widgets/add_expense_dialog.dart';
 import 'package:travel_wallet/repositories/expense_storage/expense_storage_service.dart';
 
 class ExpenseHistoryView extends StatelessWidget {
   final String currencyCode;
+  final dynamic travelWallet;
 
   static final expenseStorage = ExpenseStorageService();
 
-  const ExpenseHistoryView({super.key, required this.currencyCode});
+  const ExpenseHistoryView({
+    super.key,
+    required this.currencyCode,
+    required this.travelWallet,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -88,28 +94,65 @@ class ExpenseHistoryView extends StatelessWidget {
                         orElse: () => categories.first,
                       );
 
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: category.color.withValues(
-                            alpha: 0.2,
-                          ),
-                          child: Icon(
-                            category.icon,
-                            color: category.color,
-                            size: 20,
-                          ),
+                      return Dismissible(
+                        key: Key(tx.id), // Уникальный ключ для Flutter
+                        direction: DismissDirection
+                            .endToStart, // Свайп только справа налево
+                        background: Container(
+                          color: Colors.red,
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 20.0),
+                          child: const Icon(Icons.delete, color: Colors.white),
                         ),
-                        title: Text(category.name),
-                        subtitle: Text(
-                          DateFormat('HH:mm').format(tx.dateTime),
-                        ), // Время
-                        trailing: Text(
-                          // Если вычитание, ставим минус, если добавление — плюс
-                          '${tx.isAdding ? '+' : '-'}${tx.amount.toStringAsFixed(2)} $currencyCode',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: tx.isAdding ? Colors.green : Colors.red,
+                        onDismissed: (direction) {
+                          // Вызываем удаление в сервисе
+                          expenseStorage.deleteTransaction(
+                            currencyCode: currencyCode,
+                            transaction: tx,
+                          );
+
+                          // Показываем быстрый Снэкбар внизу с кнопкой отмены (опционально)
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Операция "${category.name}" удалена',
+                              ),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                        child: ListTile(
+                          onTap: () {
+                            // ПО ТАПУ ОТКРЫВАЕМ ДИАЛОГ И ПЕРЕДАЕМ ТРАНЗАКЦИЮ
+                            showAddExpenseDialog(
+                              context: context,
+                              travelWallet:
+                                  travelWallet, // передай сюда свой travelWallet
+                              transaction:
+                                  tx, // <- Передаем транзакцию! Диалог поймет, что это редактирование
+                            );
+                          },
+                          leading: CircleAvatar(
+                            backgroundColor: category.color.withValues(
+                              alpha: 0.2,
+                            ),
+                            child: Icon(
+                              category.icon,
+                              color: category.color,
+                              size: 20,
+                            ),
+                          ),
+                          title: Text(category.name),
+                          subtitle: Text(
+                            DateFormat('HH:mm').format(tx.dateTime),
+                          ),
+                          trailing: Text(
+                            '${tx.isAdding ? '+' : '-'}${tx.amount.toStringAsFixed(2)} $currencyCode',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: tx.isAdding ? Colors.green : Colors.red,
+                            ),
                           ),
                         ),
                       );
