@@ -111,4 +111,36 @@ void main() {
       },
     );
   });
+
+  // --- ТЕСТ 6: Пустой список из репозитория (оффлайн первого запуска)
+  blocTest<CurrencyListBloc, CurrencyListState>(
+    '6. Должен эмитить [Loading, Error] если репозиторий вернул пустой список (нет сети и кэш пуст)',
+    build: () {
+      when(
+        () => mockRepository.getCurrencyRate(),
+      ).thenAnswer((_) async => <TravelWallet>[]);
+      return currencyListBloc;
+    },
+    act: (bloc) => bloc.add(LoadCurrencyList()),
+    expect: () => [isA<CurrencyListLoading>(), isA<CurrencyListError>()],
+  );
+
+  blocTest<CurrencyListBloc, CurrencyListState>(
+    '7. Не должен эмитить Loading при повторной загрузке, если состояние уже Loaded',
+    build: () {
+      when(
+        () => mockRepository.getCurrencyRate(),
+      ).thenAnswer((_) async => mockWallets);
+      return currencyListBloc;
+    },
+    seed: () => CurrencyListLoaded([mockWallets.first]),
+    act: (bloc) => bloc.add(LoadCurrencyList()),
+    expect: () => [
+      isA<CurrencyListLoaded>().having(
+        (state) => state.currencyRates,
+        'currencyRates',
+        mockWallets,
+      ),
+    ],
+  );
 }
