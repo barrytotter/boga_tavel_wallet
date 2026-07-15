@@ -22,6 +22,8 @@ void showAddExpenseDialog({
     text: isEditing ? transaction.amount.toStringAsFixed(2) : '',
   );
 
+  String? amountErrorText;
+
   showDialog(
     context: context,
     builder: (context) {
@@ -70,6 +72,7 @@ void showAddExpenseDialog({
                   decoration: InputDecoration(
                     labelText: S.of(context).amount,
                     hintText: S.of(context).enterTheAmount,
+                    errorText: amountErrorText,
                     border: const OutlineInputBorder(),
                   ),
                 ),
@@ -113,28 +116,41 @@ void showAddExpenseDialog({
               ),
               ElevatedButton(
                 onPressed: () {
+                  final text = amountController.text.trim();
+                  if (text.isEmpty) {
+                    setDialogState(() {
+                      amountErrorText = 'Введите сумму';
+                    });
+                    return;
+                  }
+
                   final cleanText = amountController.text.replaceAll(',', '.');
                   final enteredAmount = double.tryParse(cleanText) ?? 0.0;
 
-                  if (enteredAmount > 0) {
-                    if (isEditing) {
-                      // --- РЕЖИМ РЕДАКТИРОВАНИЯ ---
-                      expenseStorage.updateTransaction(
-                        currencyCode: currencyCode,
-                        oldTransaction: transaction,
-                        newAmount: enteredAmount,
-                        newCategoryKey: selectedCategory.key,
-                      );
-                    } else {
-                      // --- РЕЖИМ СОЗДАНИЯ ---
-                      expenseStorage.updateExpenses(
-                        currencyCode: travelWallet.abbreviation,
-                        categoryKey: selectedCategory.key,
-                        amount: enteredAmount,
-                        isAdding:
-                            isAdding, // по умолчанию расход, либо бери из параметров
-                      );
-                    }
+                  if (enteredAmount <= 0) {
+                    setDialogState(() {
+                      amountErrorText = 'Введите сумму больше нуля';
+                    });
+                    return;
+                  }
+
+                  if (isEditing) {
+                    // --- РЕЖИМ РЕДАКТИРОВАНИЯ ---
+                    expenseStorage.updateTransaction(
+                      currencyCode: currencyCode,
+                      oldTransaction: transaction,
+                      newAmount: enteredAmount,
+                      newCategoryKey: selectedCategory.key,
+                    );
+                  } else {
+                    // --- РЕЖИМ СОЗДАНИЯ ---
+                    expenseStorage.updateExpenses(
+                      currencyCode: travelWallet.abbreviation,
+                      categoryKey: selectedCategory.key,
+                      amount: enteredAmount,
+                      isAdding:
+                          isAdding, // по умолчанию расход, либо бери из параметров
+                    );
                   }
 
                   amountController.dispose(); // Чистим
