@@ -82,16 +82,6 @@ class _TravelWalletScreenState extends State<TravelWalletScreen> {
                 ],
               );
             }
-            if (state is CurrencyListLoaded) {
-              return ListView.separated(
-                itemCount: state.currencyRates.length,
-                separatorBuilder: (context, i) => const Divider(),
-                itemBuilder: (context, i) {
-                  final travelWallet = state.currencyRates[i];
-                  return CurrencyListTile(travelWallet: travelWallet);
-                },
-              );
-            }
             if (state is CurrencyListError) {
               return Center(
                 child: Column(

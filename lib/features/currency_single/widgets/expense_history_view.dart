@@ -29,13 +29,37 @@ class ExpenseHistoryView extends StatelessWidget {
 
         // Если трат еще нет — показываем красивую заглушку
         if (groupedTransactions.isEmpty) {
-          return const Center(
+          return Center(
             child: Padding(
-              padding: EdgeInsets.all(32.0),
-              child: Text(
-                'Здесь пока пусто...\nДобавьте ваш первый расход! 💸',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey, fontSize: 16),
+              padding: const EdgeInsets.symmetric(
+                vertical: 40.0,
+                horizontal: 24.0,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.receipt_long_outlined,
+                    size: 64,
+                    color: Theme.of(context).hintColor.withValues(alpha: 0.5),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Здесь пока пусто', // Можно локализовать: S.of(context).noExpensesYet
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Добавьте ваш первый расход с помощью кнопки «+» внизу!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Theme.of(context).hintColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
             ),
           );

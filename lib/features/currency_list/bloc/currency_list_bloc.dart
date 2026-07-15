@@ -18,6 +18,12 @@ class CurrencyListBloc extends Bloc<CurrencyListEvent, CurrencyListState> {
           emit(CurrencyListLoading());
         }
         final currencyRates = await currencyRepository.getCurrencyRate();
+        if (currencyRates.isEmpty) {
+          emit(
+            CurrencyListError(Exception('Нет подключения к сети и кэш пуст')),
+          );
+          return;
+        }
         emit(CurrencyListLoaded(currencyRates));
       } catch (e, st) {
         emit(CurrencyListError(e));
